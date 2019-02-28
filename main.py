@@ -74,7 +74,7 @@ headings = 'english'
 Today_str = datetime.strftime(date.today(), "%Y-%m-%d")
 
 ### !!! reports should be selected based on variables that I am interested in.
-reports = [4, 4333]
+reports = [4]
 report_headers = [["category_main","category", "product_name", "product_ID_Mall", "date"
                    , "cost_of_click", "cost_of_biding", "cost_total", "position"
                    , "IP", "Sum_definition", "cost_of_click_sum"
