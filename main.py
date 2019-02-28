@@ -17,12 +17,12 @@ from bs4 import BeautifulSoup
 #import requests, bs4  
 from requests import Request, Session
 import pytz
-#import json
+import json
 
 
 
 ### IN KBC
-with open("/data/config.json", mode="r") as config_file:
+with open("/code/data/config.json", mode="r") as config_file:
     config_dict = json.load(config_file)
         
 
@@ -41,7 +41,7 @@ PK = config_dict["parameters"]["PK"].replace(" ","").split(",")
 DESTINATION = DESTINATION_BUCKET + "." + OUTPUT_FILE.replace(".csv","")
 
 
-
+print(VARLIST)
 ############# INPUT manipulation and chceks
 
 if FROM == "" or TO == "":
@@ -69,7 +69,7 @@ WEB_login = "https://shops.ceneo.pl/Account/Login?ReturnUrl=/"
 WEB_MyReports="https://shops.ceneo.pl/Reports/MyReports"
 WEB_GeneratedReports = "https://shops.ceneo.pl/Reports/GeneratedReports"
 WEB_csv = "https://shops.ceneo.pl/Reports/GeneratedReportFile?"
-
+headings = 'english'
 
 Today_str = datetime.strftime(date.today(), "%Y-%m-%d")
 
@@ -86,7 +86,7 @@ report_headers = [["category_main","category", "product_name", "product_ID_Mall"
                       , "price_offer_Mall_ZL", "offer_rank_wrt_price"
                       , "number_of_shops_offering_product"]]
 
-OUTPUT = pd.DataFrame(columns= ["product_ID_Mall"])
+
 
 
 ######## LOGIN #####
@@ -169,7 +169,7 @@ downloaded_reports = []
 run = 0
     
 while while_check < len(reports):  # ověří všechny reporty jsou downloaded
-    time.sleep(15) #wait 15s between every attempt 
+    
     run +=1
 
     r = s.get(WEB_GeneratedReports)
@@ -245,6 +245,7 @@ while while_check < len(reports):  # ověří všechny reporty jsou downloaded
                     
                     # and store it
                     var_to_use = list(set(temp_rep.columns ).intersection(VARLIST))
+                    print(var_to_use)
                     OUTPUT = pd.merge(OUTPUT,  temp_rep[var_to_use], left_on = "product_ID_Mall", right_on = "product_ID_Mall", how = "outer" )
 
                 report_check[i] = 1
@@ -254,6 +255,7 @@ while while_check < len(reports):  # ověří všechny reporty jsou downloaded
     if run==40:
         raise Exception("I was not able to download the report even in 40 tries. Try it again!")
     while_check = sum(report_check)
+    if while_check < len(reports): time.sleep(15) #wait 15s between every attempt 
    
    
 
