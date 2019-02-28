@@ -22,7 +22,7 @@ import json
 
 
 ### IN KBC
-with open("/code/data/config.json", mode="r") as config_file:
+with open("/data/config.json", mode="r") as config_file:
     config_dict = json.load(config_file)
         
 
@@ -41,7 +41,7 @@ PK = config_dict["parameters"]["PK"].replace(" ","").split(",")
 DESTINATION = DESTINATION_BUCKET + "." + OUTPUT_FILE.replace(".csv","")
 
 
-print(VARLIST)
+
 ############# INPUT manipulation and chceks
 
 if FROM == "" or TO == "":
@@ -245,7 +245,7 @@ while while_check < len(reports):  # ověří všechny reporty jsou downloaded
                     
                     # and store it
                     var_to_use = list(set(temp_rep.columns ).intersection(VARLIST))
-                    print(var_to_use)
+                    
                     OUTPUT = pd.merge(OUTPUT,  temp_rep[var_to_use], left_on = "product_ID_Mall", right_on = "product_ID_Mall", how = "outer" )
 
                 report_check[i] = 1
