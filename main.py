@@ -252,8 +252,8 @@ while while_check < len(reports):  # ověří všechny reporty jsou downloaded
                 print("report downloaded: "+ rep)
     
     print("run" + str(run))
-    if run==40:
-        raise Exception("I was not able to download the report even in 40 tries. Try it again!")
+    if run==400:
+        raise Exception("I was not able to download the report in 100 minutes. Try it again, later!")
     while_check = sum(report_check)
     if while_check < len(reports): time.sleep(15) #wait 15s between every attempt 
    
