@@ -13,17 +13,18 @@ a) number of past days starting from yesterday,
 b) close interval of date in format YYYY/MM/DD, while this is a superior option when both alternatives are filled in.
 
 ## Available Statistics
-- *product_ID_Mall*,
-- *date*,
+- *product_ID_Mall*, primary key
+- *date*, primary key
 - *product_name*,
 - *category_main*,
-- *category*, 
+- *category*,  the lowest granularity of category
 - *cost_of_clicks_sum*,
 - *count_of_clicks*,
-- *cost_of_click_min*,
-- *cost_of_click_max*,
-- *cost_of_biding_sum*,
+- *cost_of_click_min*, minimal price of click for given product in given date
+- *cost_of_click_max*, maximal price of click for given product in given date
+- *cost_of_biding_sum*, cost of bidding
 - *cost_total_sum*
+- *position*
 
 
 
@@ -34,6 +35,7 @@ You could access the Arukereso extractor in Keboola project after login by addin
 
 
 ## Extension
+The extractor is also prepared to integrate report "Oferty na Ceneo wg. cen". Nevertheless, this report is not fully compatible with "Raport przejść", because this report provides just snapshot of prices on Ceneo on givenpoint in time. (The history is not accesible. The extraction of this report is switched-off. Contact josef@revolt.bi if you are interested in these data.
 
 
-Prepared by  ![alt text](https://www.revolt.bi/wp-content/uploads/2018/08/mail-logo-zluta.png "revolt.bi")
+![alt text](https://www.revolt.bi/wp-content/uploads/2018/08/mail-logo-zluta.png "revolt.bi")
