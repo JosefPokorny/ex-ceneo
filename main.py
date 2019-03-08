@@ -21,12 +21,10 @@ import json
 
 
 
-### IN KBC
+### IN KBC ###
 with open("/data/config.json", mode="r") as config_file:
     config_dict = json.load(config_file)
         
-
-
 
 USERNAME = config_dict["parameters"]["username"]
 PASSWORD = config_dict["parameters"]["#password"]
@@ -42,7 +40,7 @@ DESTINATION = DESTINATION_BUCKET + "." + OUTPUT_FILE.replace(".csv","")
 
 
 
-############# INPUT manipulation and chceks
+### INPUT manipulation and chceks ###
 
 if FROM == "" or TO == "":
     FROM_date = date.today()- timedelta(PAST_DAYS) ### tisíciny vteřiny
@@ -63,7 +61,7 @@ TO_un = datetime.strftime(TO_dt, "%Y_%m_%d" )
 #TO_ms = TO_dt.timestamp() * 1000
 
 
-##########  PARAMETERS  #####################
+### PARAMETERS  ###
 
 WEB_login = "https://shops.ceneo.pl/Account/Login?ReturnUrl=/"
 WEB_MyReports="https://shops.ceneo.pl/Reports/MyReports"
@@ -73,8 +71,10 @@ headings = 'english'
 
 Today_str = datetime.strftime(date.today(), "%Y-%m-%d")
 
-### !!! reports should be selected based on variables that I am interested in.
-reports = [4]
+
+reports = [4] # Raport Przejec
+#reports = [4333] # Oferty na Ceneo wg. cen
+
 report_headers = [["category_main","category", "product_name", "product_ID_Mall", "date"
                    , "cost_of_click", "cost_of_biding", "cost_total", "position"
                    , "IP", "Sum_definition", "cost_of_click_sum"
@@ -89,7 +89,7 @@ report_headers = [["category_main","category", "product_name", "product_ID_Mall"
 
 
 
-######## LOGIN #####
+### LOGIN ####
 
 headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
            "Accept-Encoding" : 	"gzip, deflate, br",
@@ -116,8 +116,8 @@ log = s.post(WEB_login, data=login_form )
 log.status_code == 200
 
 
-########### request the required reports ##################
-
+### request the required reports ###
+# first you need to request the report
 
 for i in reports:
     #generating report_form
@@ -139,7 +139,8 @@ print("Time of request is " + req_time)
     
  
     
-######### downloading and processing the reports
+### DOWNLOADING and processing the reports ###
+#once the report is requested, we wait until it will be available on page, than it can be downloaded and processed
 
 All_rep = pd.DataFrame([["Raport przejść" , 4, "Raport_przejsc_" + FROM_un + "_" + TO_un + ".csv"],
            ["Zestawienie opinii o Sklepie" , 5,"tbs"],
@@ -157,7 +158,7 @@ All_rep = pd.DataFrame([["Raport przejść" , 4, "Raport_przejsc_" + FROM_un + "
         , columns = ["report", "id", "csv"])
 
 
-
+# initializing loop
 reports_csv= []
 for rep in reports:
     reports_csv.append(All_rep.loc[All_rep["id"]==rep,"csv"].values[0])
@@ -167,11 +168,13 @@ while_check  = 0
 report_check = [0] * len(reports)
 downloaded_reports = []
 run = 0
-    
+
+#here the main loop
 while while_check < len(reports):  # ověří všechny reporty jsou downloaded
     
     run +=1
-
+    
+    # access the available reports
     r = s.get(WEB_GeneratedReports)
     print(r.status_code)
     GeneratedReports = []
@@ -182,7 +185,7 @@ while while_check < len(reports):  # ověří všechny reporty jsou downloaded
         GeneratedReports_trunc.append(GeneratedReports[i][0:-10])
         
         
-    for i,rep in enumerate(reports_csv):
+    for i,rep in enumerate(reports_csv): # for every report
         
         if report_check[i] == 0: # while it is not downloaded
                 
@@ -222,14 +225,11 @@ while while_check < len(reports):  # ověří všechny reporty jsou downloaded
                                         , "cost_of_biding_sum"
                                         , "cost_total_sum"
                                         , "date"]
-        
-
-                    ## 3341 groupovaných položek
                     # and store it
                     var_to_use = list(set(temp_rep.columns ).intersection(VARLIST))
                     OUTPUT = pd.merge(OUTPUT,  temp_rep[var_to_use], left_on = "product_ID_Mall", right_on = "product_ID_Mall", how = "outer" )
 
-                ## REport cen na Ceneo    
+                ## Report of prices on Ceneo    
                 if reports[i]==4333:
                     temp_rep = pd.DataFrame.from_dict(temp_list[1:])
                     temp_rep.columns = temp_list[0]
@@ -245,25 +245,26 @@ while while_check < len(reports):  # ověří všechny reporty jsou downloaded
                     
                     # and store it
                     var_to_use = list(set(temp_rep.columns ).intersection(VARLIST))
-                    
                     OUTPUT = pd.merge(OUTPUT,  temp_rep[var_to_use], left_on = "product_ID_Mall", right_on = "product_ID_Mall", how = "outer" )
 
                 report_check[i] = 1
                 print("report downloaded: "+ rep)
     
     print("run" + str(run))
-    if run==400:
+    
+    # There is max limit of waiting for report, it makes error after 400 tries by 15s. 
+    # The potential reason for this error is that the report was not generated so far, at all, or the script is not able to match it match it.
+    if run==400: 
         raise Exception("I was not able to download the report in 100 minutes. Try it again, later!")
     while_check = sum(report_check)
     if while_check < len(reports): time.sleep(15) #wait 15s between every attempt 
    
    
 
-  
-##################### konec loopu ##########
 
 
-#### COMPONENT:::
+
+### writing the result to KBC ###
 from keboola import docker
 
 # initialize the library
