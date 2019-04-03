@@ -121,7 +121,7 @@ login_page = s.get(WEB_login) # getting login page to obtain cookie with verific
 log = s.post(WEB_post_login, data=login_form ) 
 
 
-if log.status_code == 200 and log.text = "null":
+if log.status_code == 200 and log.text == "null":
     print("Successfully logged-in!")
 else:
     raise Exception("Something went wrong on log in, while returning status code " + str(log.status_code) + " and text '" + log.text+ "'.")
