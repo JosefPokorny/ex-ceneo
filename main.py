@@ -66,6 +66,7 @@ TO_un = datetime.strftime(TO_dt, "%Y_%m_%d" )
 ##########  PARAMETERS  #####################
 
 WEB_login = "https://shops.ceneo.pl/Account/Login?ReturnUrl=/"
+WEB_post_login = "https://shops.ceneo.pl/api/account/login"
 WEB_MyReports="https://shops.ceneo.pl/Reports/MyReports"
 WEB_GeneratedReports = "https://shops.ceneo.pl/Reports/GeneratedReports"
 WEB_csv = "https://shops.ceneo.pl/Reports/GeneratedReportFile?"
@@ -101,9 +102,14 @@ headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,imag
            "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:65.0) Gecko/20100101 Firefox/65.0"
            }
 
-login_form = {"UserName" : USERNAME, 
-              "Password": PASSWORD,
-              "RememberMe": "false"}
+# Depricated login form on 3.4.2019
+# login_form = {"UserName" : USERNAME, 
+#              "Password": PASSWORD,
+#              "RememberMe": "false"}
+
+# New login form as of 3.4.2019
+login_form = {"userName" : USERNAME, 
+              "password": PASSWORD}
 
 
 s = Session()  # opening session
@@ -111,9 +117,14 @@ s.headers.update(headers) # setting up headers
 login_page = s.get(WEB_login) # getting login page to obtain cookie with verification tooken
 
 #Login POST
-log = s.post(WEB_login, data=login_form ) 
+#log = s.post(WEB_login, data=login_form ) #Depricated login post on 3.4.2019
+log = s.post(WEB_post_login, data=login_form ) 
 
-log.status_code == 200
+
+if log.status_code == 200 and log.text = "null":
+    print("Successfully logged-in!")
+else:
+    raise Exception("Something went wrong on log in, while returning status code " + str(log.status_code) + " and text '" + log.text+ "'.")
 
 
 ########### request the required reports ##################
